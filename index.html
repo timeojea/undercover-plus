@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Undercover - Mobile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="screen-setup" class="container">
+        <div class="lang-switch">
+            <button class="lang-btn active" id="btn-fr" onclick="setLanguage('fr')">FR</button>
+            <button class="lang-btn" id="btn-en" onclick="setLanguage('en')">EN</button>
+        </div>
+
+        <img src="image_2.png" alt="Undercover Logo" class="logo-top">
+        
+        <div class="setup-section">
+            <h3><span data-i18n="players_title">Joueurs</span> (<span id="player-count">0</span>)</h3>
+            <div id="setup-players-list" class="grid-list"></div>
+            <button class="btn btn-outline" onclick="openAddPlayerModal()" data-i18n="add_player_btn">+ Ajouter un joueur</button>
+        </div>
+
+        <div class="setup-section">
+            <h3 data-i18n="settings_title">Paramètres</h3>
+            
+            <div class="settings-row">
+                <label>Undercover</label>
+                <div class="counter-box">
+                    <button class="btn-counter" onclick="adjustCounter('undercover', -1)">-</button>
+                    <span id="disp-undercover" class="counter-value">1</span>
+                    <button class="btn-counter" onclick="adjustCounter('undercover', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="settings-row">
+                <label>Mr. White</label>
+                <div class="counter-box">
+                    <button class="btn-counter" onclick="adjustCounter('white', -1)">-</button>
+                    <span id="disp-white" class="counter-value">0</span>
+                    <button class="btn-counter" onclick="adjustCounter('white', 1)">+</button>
+                </div>
+            </div>
+
+            <label style="margin-top:10px; display:block; color:#aaa; font-size:0.9em;" data-i18n="theme_label">Thème des mots</label>
+            <select id="category-select">
+                </select>
+        </div>
+
+        <button class="btn btn-primary" onclick="setupGame()" data-i18n="start_btn">Lancer la partie</button>
+    </div>
+
+    <div id="screen-distrib" class="container hidden center-content">
+        <img id="distrib-avatar" src="" class="avatar-large">
+        <h2 id="distrib-player-name">Joueur X</h2>
+        <p data-i18n="pass_phone">Passez le téléphone à ce joueur</p>
+        
+        <div id="secret-area" onmousedown="showSecret()" onmouseup="hideSecret()" ontouchstart="showSecret()" ontouchend="hideSecret()">
+            <span id="secret-text" data-i18n="hold_reveal">Maintenir pour voir</span>
+        </div>
+        
+        <button class="btn btn-primary" id="next-player-btn" onclick="nextPlayerDistrib()" data-i18n="validate_btn">Valider</button>
+    </div>
+
+    <div id="screen-game" class="container hidden">
+        <div class="header-game">
+            <h2 data-i18n="in_game">En jeu</h2>
+        </div>
+        <div id="game-players-list" class="list-vertical"></div>
+        <button class="btn btn-secondary" onclick="location.reload()" data-i18n="quit_btn">Quitter / Rejouer</button>
+    </div>
+
+    <div id="modal-add-player" class="modal hidden">
+        <div class="modal-content">
+            <h3 data-i18n="add_player_modal">Ajouter un joueur</h3>
+            
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('new')" data-i18n="tab_new">Nouveau</button>
+                <button class="tab-btn" onclick="switchTab('existing')" data-i18n="tab_import">Importer</button>
+            </div>
+
+            <div id="tab-new" class="tab-content">
+                <div class="avatar-upload">
+                    <label for="avatar-input">
+                        <img id="preview-avatar" src="" class="avatar-medium">
+                        <span data-i18n="change_photo">Changer photo</span>
+                    </label>
+                    <input type="file" id="avatar-input" accept="image/*" onchange="previewImage(this)" style="display:none;">
+                </div>
+                <input type="text" id="new-player-name" placeholder="Nom du joueur">
+                <button class="btn btn-primary" onclick="confirmAddPlayer()" data-i18n="add_btn">Ajouter</button>
+            </div>
+
+            <div id="tab-existing" class="tab-content hidden">
+                <div id="saved-players-list" class="scroll-list"></div>
+            </div>
+
+            <button class="btn btn-text" onclick="closeAddModal()" data-i18n="close_btn">Fermer</button>
+        </div>
+    </div>
+
+    <div id="check-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="check-modal-name">Nom</h3>
+            <p data-i18n="secret_check">Vérification secrète</p>
+            <div id="check-secret-box" class="secret-box-check"
+                 onmousedown="revealCheck()" onmouseup="hideCheck()" ontouchstart="revealCheck()" ontouchend="hideCheck()">
+                Maintenir
+            </div>
+            <button class="btn btn-secondary" onclick="closeCheckModal()" data-i18n="close_btn">Fermer</button>
+        </div>
+    </div>
+    
+    <svg id="user-icon-svg" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="60%" height="60%"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
