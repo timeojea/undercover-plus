@@ -1,10 +1,25 @@
-# 🕵️ Undercover+ - Custom Party Game
+<div align="center">
+  <img src="image_2.png" alt="Undercover Logo" width="150">
 
-![Undercover Logo](image_2.png)
+  <h1>🕵️ Undercover+ - Custom Party Game</h1>
 
-> A fully customizable, mobile-first web version of the famous social deduction party game. Built with vanilla HTML, CSS, and JavaScript. No backend required.
+  <p>
+    A fully customizable, mobile-first web version of the famous social deduction party game.<br>
+    Built with vanilla HTML, CSS, and JavaScript. No backend required.
+  </p>
 
-![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=white)
+  <h2>
+    <a href="https://timeojea.github.io/undercover-plus/">🚀 PLAY ONLINE NOW</a>
+  </h2>
+
+  <p>
+    <img src="https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
+    <img src="https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3">
+    <img src="https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=white" alt="JavaScript">
+  </p>
+</div>
+
+<br>
 
 ## 🎮 What is Undercover?
 
@@ -26,12 +41,12 @@ Players must describe their word without revealing too much, then vote to elimin
     * **LocalStorage:** Players are saved on your device for future games.
 * **🔒 Security:** Deleting a saved player requires a PIN code (`4862`) to prevent accidents.
 * **⚙️ Customizable Settings:** Choose the number of Undercovers and Mr. Whites.
-* **📚 extensive Word Database:** Includes 3 pre-filled "Combolists" with 100+ word pairs each (Daily Life, Pop Culture, Concepts).
+* **📚 Extensive Word Database:** Includes 3 pre-filled "Combolists" with 100+ word pairs each (Daily Life, Pop Culture, Concepts).
 * **👁️ Secret Check:** Players can discreetly check their word during the game using a "Hold to reveal" mechanic.
 
 ## 🚀 How to Play
 
-1.  **Setup:** Open the app on one phone.
+1.  **Setup:** Open the app on one phone (or click the [Play Online](https://timeojea.github.io/undercover-plus/) link).
 2.  **Add Players:** Click `+ Add Player` to create profiles or import saved friends.
 3.  **Configure:** Select the number of *Undercovers* and *Mr. Whites*, and choose a Word Theme.
 4.  **Distribute Roles:** Pass the phone to each player. They must hold the screen to see their secret identity.
@@ -43,16 +58,12 @@ Players must describe their word without revealing too much, then vote to elimin
 You don't need to install anything! This is a static web application.
 
 ### Option 1: Play Online (Recommended)
-Host this repository on **GitHub Pages**:
-1.  Fork or Clone this repository.
-2.  Go to `Settings` > `Pages`.
-3.  Select `main` branch and save.
-4.  Your game is live! Share the URL with friends.
+Simply click here: **[https://timeojea.github.io/undercover-plus/](https://timeojea.github.io/undercover-plus/)**
 
 ### Option 2: Run Locally
 1.  Clone the repository:
     ```bash
-    git clone [https://github.com/YOUR_USERNAME/undercover-party.git](https://github.com/YOUR_USERNAME/undercover-party.git)
+    git clone [https://github.com/timeojea/undercover-plus.git](https://github.com/timeojea/undercover-plus.git)
     ```
 2.  Simply open `index.html` in your web browser (Chrome, Safari, Firefox).
 
