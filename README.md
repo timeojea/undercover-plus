@@ -1,4 +1,4 @@
-# 🕵️ Undercover - Custom Party Game
+# 🕵️ Undercover+ - Custom Party Game
 
 ![Undercover Logo](image_2.png)
 
