@@ -49,7 +49,7 @@ const DATABASE = {
             ["Mariage", "Pacs"], ["Divorce", "Séparation"], ["Bague", "Collier"], ["Boucles d'oreilles", "Piercing"], 
             ["Tatouage", "Cicatrice"], ["Barbe", "Moustache"], ["Cheveux", "Perruque"], ["Chauve", "Rasé"], 
             ["Blond", "Brun"], ["Roux", "Châtain"], ["Yeux", "Regard"], ["Bouche", "Lèvres"], 
-            ["Nez", "Narines"], ["Oreille", "Ouïe"], ["Main", "Doigt"], ["Pied", "Orteil"], 
+            ["Nose", "Narines"], ["Oreille", "Ouïe"], ["Main", "Doigt"], ["Pied", "Orteil"], 
             ["Cœur", "Poumon"], ["Sang", "Veine"], ["Os", "Squelette"], ["Muscle", "Force"]
         ],
         "Combolist 3 (Concepts & Nature)": [
@@ -133,7 +133,7 @@ const DATABASE = {
         "Combolist 3 (Concepts & Nature)": [
             ["France", "Belgium"], ["Paris", "London"], ["London", "New York"], ["Spain", "Italy"], 
             ["Germany", "England"], ["China", "Japan"], ["Canada", "USA"], ["Russia", "Ukraine"], 
-            ["Africa", "Asia"], ["Europe", "America"], ["North", "South"], ["East", "West"], 
+            ["Africa", "Asia"], ["Europe", "America"], ["North", "South"], ["East", "Ouest"], 
             ["Left", "Right"], ["Up", "Down"], ["Front", "Back"], ["Inside", "Outside"], 
             ["Here", "There"], ["Now", "Tomorrow"], ["Yesterday", "Before"], ["Day", "Night"], 
             ["Morning", "Evening"], ["Noon", "Midnight"], ["Hour", "Minute"], ["Second", "Moment"], 
@@ -141,7 +141,7 @@ const DATABASE = {
             ["January", "February"], ["Christmas", "Easter"], ["Birthday", "Party"], ["Gift", "Surprise"], 
             ["Cake", "Pie"], ["Candle", "Lamp"], ["Fire", "Flame"], ["Water", "Ice"], 
             ["Earth", "Sand"], ["Stone", "Pebble"], ["Mountain", "Hill"], ["Volcano", "Crater"], 
-            ["Island", "Peninsula"], ["Desert", "Savanna"], ["Lion", "Tiger"], ["Elephant", "Giraffe"], 
+            ["Island", "Peninsula"], ["Desert", "Savane"], ["Lion", "Tiger"], ["Elephant", "Giraffe"], 
             ["Monkey", "Gorilla"], ["Bear", "Panda"], ["Wolf", "Fox"], ["Eagle", "Falcon"], 
             ["Pigeon", "Seagull"], ["Parrot", "Canary"], ["Snake", "Lizard"], ["Turtle", "Snail"], 
             ["Frog", "Toad"], ["Shark", "Dolphin"], ["Whale", "Orca"], ["Fish", "Crab"], 
