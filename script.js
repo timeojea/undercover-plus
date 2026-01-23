@@ -262,7 +262,7 @@ async function generateWordsWithAI() {
     const prompt = `Génère 15 paires de mots pour le jeu Undercover sur le thème "${theme}".
     Langue: ${currentLang === 'fr' ? 'Français' : 'Anglais'}.
     Format STRICT: Uniquement un tableau JSON de tableaux de chaînes. Exemple: [["MotCivil", "MotUndercover"], ["A", "B"]].
-    Les mots doivent être proches mais différents. Pas de texte avant ou après le JSON.`;
+    Les mots doivent être proches mais différents. Il faudrait que les synonymes d'un des mots puissent aussi s'appliquer à l'autre mot. Pas de texte avant ou après le JSON.`;
 
     try {
         // Utilisation de Gemini 1.5 Flash (rapide et compatible texte)
