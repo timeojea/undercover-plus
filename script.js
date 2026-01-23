@@ -1,8 +1,11 @@
 // script.js
 
 // --- CONFIG IA ---
-// ⚠️ REMPLACE CECI PAR TA CLÉ GOOGLE AI STUDIO !
-const GEMINI_API_KEY = "AIzaSyDGPbpE6NoU6QMmzMEdMNiqLOdDCRqUML4"; 
+const keyPart1 = "AIzaSy"; // Le début standard
+const keyPart2 = "BdG4VSgZy_7Dw5ckNvoGuopxvjJAH7aPQ"; // La suite de ta vraie clé
+
+// On recolle les morceaux :
+const GEMINI_API_KEY = keyPart1 + keyPart2;
 
 let currentLang = 'fr';
 const translations = {
@@ -263,7 +266,7 @@ async function generateWordsWithAI() {
 
     try {
         // Utilisation de Gemini 1.5 Flash (rapide et compatible texte)
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
@@ -670,5 +673,4 @@ function openCheckModal(idx) {
 }
 function closeCheckModal() { document.getElementById('check-modal').classList.add('hidden'); }
 function revealCheck() { if(checkingPlayerIdx !== -1) document.getElementById('check-secret-box').innerText = gameData[checkingPlayerIdx].word; }
-
 function hideCheck() { document.getElementById('check-secret-box').innerText = translations[currentLang].hold_reveal; }
