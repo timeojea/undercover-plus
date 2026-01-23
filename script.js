@@ -1,6 +1,9 @@
 // script.js
 
-// --- TRADUCTIONS & CONFIG ---
+// --- CONFIG IA ---
+// ⚠️ REMPLACE CECI PAR TA CLÉ GOOGLE AI STUDIO !
+const GEMINI_API_KEY = "TA_CLE_API_ICI"; 
+
 let currentLang = 'fr';
 const translations = {
     fr: {
@@ -87,26 +90,20 @@ const translations = {
     }
 };
 
-// --- DATA & INIT ---
 let savedPlayers = JSON.parse(localStorage.getItem('undercover_db')) || [];
 let currentPlayers = []; 
 let gameData = []; 
 let settings = { undercover: 1, white: 0 };
 let currentGameWords = { civil: "", under: "" };
 let pendingWhiteEliminationIdx = -1;
+let customDB = JSON.parse(localStorage.getItem('undercover_custom_db')) || {};
 
-function saveDB() {
-    localStorage.setItem('undercover_db', JSON.stringify(savedPlayers));
-}
-function saveLobbyPlayers() {
-    localStorage.setItem('undercover_lobby_players', JSON.stringify(currentPlayers));
-}
+function saveDB() { localStorage.setItem('undercover_db', JSON.stringify(savedPlayers)); }
+function saveLobbyPlayers() { localStorage.setItem('undercover_lobby_players', JSON.stringify(currentPlayers)); }
+function saveCustomDB() { localStorage.setItem('undercover_custom_db', JSON.stringify(customDB)); updateCategorySelect(); }
 function loadLobbyPlayers() {
     const lobby = JSON.parse(localStorage.getItem('undercover_lobby_players'));
-    if (lobby && Array.isArray(lobby)) {
-        currentPlayers = lobby;
-        renderSetupList();
-    }
+    if (lobby && Array.isArray(lobby)) { currentPlayers = lobby; renderSetupList(); }
 }
 
 window.onload = function() {
@@ -129,23 +126,191 @@ function setLanguage(lang) {
 
 function updateCategorySelect() {
     const select = document.getElementById('category-select');
+    const currentVal = select.value;
     select.innerHTML = "";
+    
     let allOpt = document.createElement('option');
     allOpt.value = "all";
     allOpt.innerText = translations[currentLang].mix_all;
     select.appendChild(allOpt);
+
     const cats = DATABASE[currentLang];
     if(cats) {
+        let optGroup = document.createElement('optgroup');
+        optGroup.label = "--- Officiel ---";
         for (let cat in cats) {
             let opt = document.createElement('option');
             opt.value = cat;
             opt.innerText = cat;
-            select.appendChild(opt);
+            optGroup.appendChild(opt);
         }
+        select.appendChild(optGroup);
+    }
+
+    if(Object.keys(customDB).length > 0) {
+        let optGroupCustom = document.createElement('optgroup');
+        optGroupCustom.label = "--- Mes Packs ---";
+        for (let cat in customDB) {
+            let opt = document.createElement('option');
+            opt.value = "custom_" + cat;
+            opt.innerText = "★ " + cat;
+            optGroupCustom.appendChild(opt);
+        }
+        select.appendChild(optGroupCustom);
+    }
+    if (currentVal) select.value = currentVal;
+}
+
+// --- EDITOR & IA LOGIC ---
+function openWordEditor() { document.getElementById('modal-word-editor').classList.remove('hidden'); renderPackList(); }
+function closeWordEditor() { document.getElementById('modal-word-editor').classList.add('hidden'); }
+function renderPackList() {
+    const list = document.getElementById('editor-pack-list');
+    list.innerHTML = "";
+    const packs = Object.keys(customDB);
+    if(packs.length === 0) { list.innerHTML = "<p style='color:#666; font-style:italic; padding:10px;'>Aucun pack personnalisé.</p>"; return; }
+    packs.forEach(packName => {
+        const row = document.createElement('div');
+        row.className = "import-row";
+        const left = document.createElement('div');
+        left.className = "import-left";
+        left.innerHTML = `<span>📂 ${packName} <span style="font-size:0.8em; color:#666">(${customDB[packName].length} paires)</span></span>`;
+        left.onclick = () => openPackDetail(packName);
+        const delBtn = document.createElement('button');
+        delBtn.className = "delete-saved-btn";
+        delBtn.innerText = "🗑️";
+        delBtn.onclick = (e) => { e.stopPropagation(); deletePack(packName); };
+        row.appendChild(left);
+        row.appendChild(delBtn);
+        list.appendChild(row);
+    });
+}
+function createCustomPack() {
+    const nameInput = document.getElementById('new-pack-name');
+    const name = nameInput.value.trim();
+    if(!name) return alert("Nom vide !");
+    if(customDB[name] || DATABASE[currentLang][name]) return alert("Ce nom existe déjà !");
+    customDB[name] = [];
+    saveCustomDB();
+    nameInput.value = "";
+    renderPackList();
+}
+function deletePack(name) {
+    if(confirm(`Supprimer le pack "${name}" définitivement ?`)) { delete customDB[name]; saveCustomDB(); renderPackList(); }
+}
+let currentEditingPack = "";
+function openPackDetail(packName) {
+    currentEditingPack = packName;
+    document.getElementById('pack-detail-title').innerText = packName;
+    document.getElementById('modal-word-editor').classList.add('hidden');
+    document.getElementById('modal-pack-detail').classList.remove('hidden');
+    renderPackWords();
+}
+function closePackDetail() {
+    document.getElementById('modal-pack-detail').classList.add('hidden');
+    document.getElementById('modal-word-editor').classList.remove('hidden');
+    renderPackList();
+}
+function renderPackWords() {
+    const list = document.getElementById('pack-words-list');
+    list.innerHTML = "";
+    const words = customDB[currentEditingPack];
+    if(words.length === 0) { list.innerHTML = "<p style='color:#666; font-style:italic; padding:10px;'>Aucune paire dans ce pack.</p>"; }
+    words.forEach((pair, idx) => {
+        const row = document.createElement('div');
+        row.className = "import-row";
+        row.style.cursor = "default";
+        row.innerHTML = `
+            <div style="flex:1; text-align:left;">
+                <span style="color:#fff;">${pair[0]}</span> 
+                <span style="color:#666;">vs</span> 
+                <span style="color:var(--primary);">${pair[1]}</span>
+            </div>
+            <button class="delete-saved-btn" onclick="deletePair(${idx})">×</button>
+        `;
+        list.appendChild(row);
+    });
+}
+function addPairToPack() {
+    const civ = document.getElementById('new-word-civil').value.trim();
+    const und = document.getElementById('new-word-under').value.trim();
+    if(!civ || !und) return alert("Remplissez les deux mots !");
+    customDB[currentEditingPack].push([civ, und]);
+    saveCustomDB();
+    document.getElementById('new-word-civil').value = "";
+    document.getElementById('new-word-under').value = "";
+    document.getElementById('new-word-civil').focus();
+    renderPackWords();
+}
+function deletePair(idx) { customDB[currentEditingPack].splice(idx, 1); saveCustomDB(); renderPackWords(); }
+
+// --- IA GENERATION (GEMINI) ---
+async function generateWordsWithAI() {
+    const theme = document.getElementById('ai-theme-input').value.trim();
+    if (!theme) return alert("Entrez un thème (ex: Harry Potter) !");
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === "TA_CLE_API_ICI") return alert("Clé API manquante ! Configurez script.js.");
+
+    const btn = document.getElementById('btn-generate-ai');
+    const originalText = btn.innerHTML; // On sauvegarde le texte "GO" avec son span
+    btn.innerHTML = '<div class="loading-spinner"></div>';
+    btn.disabled = true;
+
+    // Prompt pour l'IA
+    const prompt = `Génère 15 paires de mots pour le jeu Undercover sur le thème "${theme}".
+    Langue: ${currentLang === 'fr' ? 'Français' : 'Anglais'}.
+    Format STRICT: Uniquement un tableau JSON de tableaux de chaînes. Exemple: [["MotCivil", "MotUndercover"], ["A", "B"]].
+    Les mots doivent être proches mais différents. Pas de texte avant ou après le JSON.`;
+
+    try {
+        // Utilisation de Gemini 1.5 Flash (rapide et compatible texte)
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+
+        const data = await response.json();
+        
+        console.log("Réponse API Gemini :", data);
+
+        if (data.error) {
+            throw new Error(`Erreur API (${data.error.code}): ${data.error.message}`);
+        }
+
+        if (!data.candidates || !data.candidates[0]) {
+            throw new Error("L'IA n'a renvoyé aucun résultat (problème de sécurité ou filtre).");
+        }
+
+        const rawText = data.candidates[0].content.parts[0].text;
+        
+        // Nettoyage du Markdown (```json ... ```)
+        const jsonString = rawText.replace(/```json|```/g, '').trim();
+        const pairs = JSON.parse(jsonString);
+
+        if (Array.isArray(pairs)) {
+            pairs.forEach(p => {
+                if(Array.isArray(p) && p.length === 2) {
+                    customDB[currentEditingPack].push(p);
+                }
+            });
+            saveCustomDB();
+            renderPackWords();
+            document.getElementById('ai-theme-input').value = "";
+            alert(`✨ ${pairs.length} paires ajoutées !`);
+        } else {
+            throw new Error("Format invalide reçu de l'IA");
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Oups ! " + error.message);
+    } finally {
+        btn.innerHTML = originalText; // Remet le bouton avec le texte gradient
+        btn.disabled = false;
     }
 }
 
-// --- AVATAR & SETUP PLAYERS ---
+
+// --- AVATAR & PLAYERS ---
 function generateDefaultAvatar() {
     const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e67e22'];
     const color = colors[Math.floor(Math.random() * colors.length)];
@@ -168,14 +333,11 @@ function generateDefaultAvatar() {
         img.src = url;
     });
 }
-
 function adjustCounter(type, delta) {
     settings[type] += delta;
     if (settings[type] < 0) settings[type] = 0;
-    // MODIF : On autorise 0 undercover dans les settings, la verif se fera au start
     document.getElementById(`disp-${type}`).innerText = settings[type];
 }
-
 async function openAddPlayerModal() {
     document.getElementById('modal-add-player').classList.remove('hidden');
     document.getElementById('new-player-name').value = "";
@@ -292,19 +454,25 @@ function setupGame() {
     const nbWhite = settings.white;
     const totalImpostors = nbUnder + nbWhite;
 
-    // MODIF : Vérification du nombre de joueurs
     if (currentPlayers.length < totalImpostors + 1) return alert(t.not_enough);
-    // MODIF : Vérification qu'il y a au moins un méchant
     if (totalImpostors < 1) return alert(t.not_enough_bad);
     
     const cat = document.getElementById('category-select').value;
     const dbLang = DATABASE[currentLang];
     let availablePairs = [];
+    
     if (cat === "all") {
         for (let c in dbLang) availablePairs = availablePairs.concat(dbLang[c]);
+        for (let c in customDB) availablePairs = availablePairs.concat(customDB[c]);
+    } else if (cat.startsWith("custom_")) {
+        const realName = cat.replace("custom_", "");
+        availablePairs = customDB[realName];
     } else {
         availablePairs = dbLang[cat];
     }
+
+    if (!availablePairs || availablePairs.length === 0) return alert("Ce pack est vide !");
+
     const pair = availablePairs[Math.floor(Math.random() * availablePairs.length)];
     const coinFlip = Math.random() > 0.5;
     const civilWord = coinFlip ? pair[0] : pair[1];
@@ -317,35 +485,21 @@ function setupGame() {
     while (roles.length < currentPlayers.length) roles.push({type: 'Civil', word: civilWord});
     roles.sort(() => Math.random() - 0.5);
     
-    // NOUVEAU : Création de l'ordre de passage
-    // On mélange les indices 0 à N-1
+    // Ordre de passage sans Mr White en premier
     let order = currentPlayers.map((_, i) => i);
-    
-    // On boucle tant que le premier joueur (order[0]) est un Mr White
-    // Note : On suppose qu'il n'y a pas QUE des Mr White, sinon boucle infinie (mais bloqué par nbJoueurs > impostors)
     let isValidOrder = false;
     while (!isValidOrder) {
         order.sort(() => Math.random() - 0.5);
-        // On regarde le rôle du premier joueur dans l'ordre
-        // L'ordre des rôles correspond à l'ordre des currentPlayers au moment du map plus bas
-        if (roles[order[0]].type !== 'Mr. White') {
-            isValidOrder = true;
-        }
+        if (roles[order[0]].type !== 'Mr. White') isValidOrder = true;
     }
 
-    // Création Game Data avec l'ordre
     gameData = currentPlayers.map((p, i) => ({
         ...p,
         role: roles[i].type,
         word: roles[i].word,
         isDead: false,
-        playOrder: order.indexOf(i) + 1 // Stocke l'ordre (1, 2, 3...)
+        playOrder: order.indexOf(i) + 1
     }));
-
-    // On trie gameData pour l'affichage en jeu selon playOrder
-    // Mais attention : pour la distribution, on garde l'ordre "naturel" du téléphone qui passe
-    // La variable gameData sera utilisée pour la distribution dans l'ordre du tableau (qui est l'ordre d'ajout)
-    // C'est seulement à l'affichage de la liste "En jeu" qu'on triera.
 
     currentPlayerIndex = 0;
     document.getElementById('screen-setup').classList.add('hidden');
@@ -384,15 +538,10 @@ function renderGameList() {
     const list = document.getElementById('game-players-list');
     list.innerHTML = '';
     const t = translations[currentLang];
-    
-    // NOUVEAU : On crée une copie triée pour l'affichage sans casser l'ordre des indices pour elimination
-    // On veut afficher dans l'ordre de passage (playOrder)
     let displayList = [...gameData].sort((a, b) => a.playOrder - b.playOrder);
 
     displayList.forEach((p) => {
-        // Il faut retrouver l'index original pour que les boutons marchent
-        const originalIdx = gameData.findIndex(gp => gp.id === p.id); // On utilise l'ID unique (timestamp)
-
+        const originalIdx = gameData.findIndex(gp => gp.id === p.id);
         const div = document.createElement('div');
         div.className = `player-row ${p.isDead ? 'dead' : ''}`;
         let actions = '';
@@ -435,7 +584,8 @@ function killPlayer(idx) {
     const t = translations[currentLang];
     const player = gameData[idx];
     player.isDead = true;
-    alert(`☠️ ${player.name} ${t.is_eliminated}\n\n${t.role} : ${player.role}\n${t.word} : ${player.word}`);
+    // CORRECTION : Pas de spoil du mot
+    alert(`☠️ ${player.name} ${t.is_eliminated}\n\n${t.role} : ${player.role}`);
     renderGameList();
     checkGameEnd();
 }
@@ -449,7 +599,6 @@ function confirmWhiteGuess() {
     const userGuess = document.getElementById('white-guess-input').value;
     const cleanGuess = normalizeString(userGuess);
     const cleanCivilWord = normalizeString(currentGameWords.civil);
-    
     document.getElementById('modal-white-guess').classList.add('hidden');
 
     if (cleanGuess === cleanCivilWord && cleanGuess !== "") {
@@ -460,7 +609,6 @@ function confirmWhiteGuess() {
         pendingWhiteEliminationIdx = -1;
     }
 }
-
 function cancelWhiteGuess() {
     document.getElementById('modal-white-guess').classList.add('hidden');
     killPlayer(pendingWhiteEliminationIdx);
@@ -474,17 +622,10 @@ function checkGameEnd() {
     const aliveCivilians = alivePlayers.filter(p => p.role === 'Civil');
 
     let winner = null;
+    if (aliveImpostors.length === 0) winner = 'Civilians';
+    else if (aliveImpostors.length >= aliveCivilians.length && aliveImpostors.length > 0) winner = 'Impostors';
 
-    if (aliveImpostors.length === 0) {
-        winner = 'Civilians';
-    } 
-    else if (aliveImpostors.length >= aliveCivilians.length && aliveImpostors.length > 0) {
-        winner = 'Impostors';
-    }
-
-    if (winner) {
-        showEndScreen(winner);
-    }
+    if (winner) showEndScreen(winner);
 }
 
 function showEndScreen(winnerRole) {

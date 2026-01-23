@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <title>Undercover+</title>
-    
     <link rel="icon" type="image/png" href="app_logo.png">
-    
     <link rel="stylesheet" href="style.css">
-
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#9b59b6">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -55,7 +51,10 @@
             </div>
 
             <label style="margin-top:10px; display:block; color:#aaa; font-size:0.9em;" data-i18n="theme_label">Thème des mots</label>
-            <select id="category-select"></select>
+            <div style="display:flex; gap:10px;">
+                <select id="category-select" style="flex:1;"></select>
+                <button class="btn btn-secondary" onclick="openWordEditor()" style="width:auto; margin-top:0; padding:10px;">✏️</button>
+            </div>
         </div>
 
         <button class="btn btn-primary" onclick="setupGame()" data-i18n="start_btn">Lancer la partie</button>
@@ -65,11 +64,9 @@
         <img id="distrib-avatar" src="" class="avatar-large">
         <h2 id="distrib-player-name">Joueur X</h2>
         <p data-i18n="pass_phone">Passez le téléphone à ce joueur</p>
-        
         <div id="secret-area" onmousedown="showSecret()" onmouseup="hideSecret()" ontouchstart="showSecret()" ontouchend="hideSecret()">
             <span id="secret-text" data-i18n="hold_reveal">Maintenir pour voir</span>
         </div>
-        
         <button class="btn btn-primary" id="next-player-btn" onclick="nextPlayerDistrib()" data-i18n="validate_btn">Valider</button>
     </div>
 
@@ -85,7 +82,6 @@
         <h1 id="winner-title" style="font-size: 2.5em;"></h1>
         <p data-i18n="winners_are">Les vainqueurs sont :</p>
         <div id="winners-list" class="grid-list" style="justify-content: center;"></div>
-        
         <div style="margin-top: 30px; width: 100%;">
             <p style="font-weight: bold;" data-i18n="words_were">Les mots étaient :</p>
             <div style="display: flex; justify-content: space-around; margin-bottom: 20px;">
@@ -93,19 +89,16 @@
                 <div><span style="color: var(--subtext);">Undercover:</span> <br><strong id="end-under-word" style="color: var(--text); font-size: 1.2em;"></strong></div>
             </div>
         </div>
-
         <button class="btn btn-primary" onclick="backToSetup()" data-i18n="play_again_btn">Rejouer</button>
     </div>
 
     <div id="modal-add-player" class="modal hidden">
         <div class="modal-content">
             <h3 data-i18n="add_player_modal">Ajouter un joueur</h3>
-            
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab('new')" data-i18n="tab_new">Nouveau</button>
                 <button class="tab-btn" onclick="switchTab('existing')" data-i18n="tab_import">Importer</button>
             </div>
-
             <div id="tab-new" class="tab-content">
                 <div class="avatar-upload">
                     <div class="avatar-row">
@@ -113,19 +106,15 @@
                             <img id="preview-avatar" src="" class="avatar-medium">
                         </label>
                         <input type="file" id="avatar-input" accept="image/*" onchange="previewImage(this)" style="display:none;">
-                        
                         <label for="avatar-input" class="change-photo-text" data-i18n="change_photo">Changer de photo</label>
                     </div>
                 </div>
-                
                 <input type="text" id="new-player-name" placeholder="Nom du joueur">
                 <button class="btn btn-primary" onclick="confirmAddPlayer()" data-i18n="add_btn">Ajouter</button>
             </div>
-
             <div id="tab-existing" class="tab-content hidden">
                 <div id="saved-players-list" class="scroll-list"></div>
             </div>
-
             <button class="btn btn-text" onclick="closeAddModal()" data-i18n="close_btn">Fermer</button>
         </div>
     </div>
@@ -134,8 +123,7 @@
         <div class="modal-content">
             <h3 id="check-modal-name">Nom</h3>
             <p data-i18n="secret_check">Vérification secrète</p>
-            <div id="check-secret-box" class="secret-box-check"
-                 onmousedown="revealCheck()" onmouseup="hideCheck()" ontouchstart="revealCheck()" ontouchend="hideCheck()">
+            <div id="check-secret-box" class="secret-box-check" onmousedown="revealCheck()" onmouseup="hideCheck()" ontouchstart="revealCheck()" ontouchend="hideCheck()">
                 Maintenir
             </div>
             <button class="btn btn-secondary" onclick="closeCheckModal()" data-i18n="close_btn">Fermer</button>
@@ -151,6 +139,45 @@
             <button class="btn btn-text" onclick="cancelWhiteGuess()" style="margin-top:10px;">Abandonner</button>
         </div>
     </div>
+
+    <div id="modal-word-editor" class="modal hidden">
+        <div class="modal-content" style="height: 80vh; display: flex; flex-direction: column;">
+            <h3>Mes Packs de Mots</h3>
+            <div id="editor-pack-list" class="scroll-list" style="flex:1; margin-bottom:10px;"></div>
+            <div class="input-group" style="display:flex; gap:5px; margin-bottom:10px;">
+                <input type="text" id="new-pack-name" placeholder="Nom du nouveau pack" style="margin:0;">
+                <button class="btn btn-primary" onclick="createCustomPack()" style="width:auto; margin:0;">+</button>
+            </div>
+            <button class="btn btn-text" onclick="closeWordEditor()">Fermer</button>
+        </div>
+    </div>
+
+    <div id="modal-pack-detail" class="modal hidden">
+        <div class="modal-content" style="height: 80vh; display: flex; flex-direction: column;">
+            <h3 id="pack-detail-title">Nom du Pack</h3>
+            
+            <div class="rgb-container">
+                <div class="rgb-inner">
+                    <label class="rgb-label">✨ Générer avec IA</label>
+                    <div class="rgb-flex">
+                        <input type="text" class="rgb-input" id="ai-theme-input" placeholder="Ex: Harry Potter, Plage...">
+                        <button class="btn-ai-rgb" id="btn-generate-ai" onclick="generateWordsWithAI()">
+                            <span class="gradient-text">Go</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pack-words-list" class="scroll-list" style="flex:1; margin-bottom:10px;"></div>
+
+            <div style="background:#222; padding:10px; border-radius:8px; margin-bottom:10px;">
+                <input type="text" id="new-word-civil" placeholder="Mot Civil" style="margin-bottom:5px;">
+                <input type="text" id="new-word-under" placeholder="Mot Undercover" style="margin-bottom:5px;">
+                <button class="btn btn-primary" onclick="addPairToPack()">Ajouter la paire</button>
+            </div>
+            <button class="btn btn-secondary" onclick="closePackDetail()">Retour</button>
+        </div>
+    </div>
     
     <svg id="user-icon-svg" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="60%" height="60%"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
 
@@ -158,9 +185,7 @@
 
     <script src="data.js"></script>
     <script src="script.js"></script>
-    
     <script>
-        // Enregistrement du Service Worker pour la PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
