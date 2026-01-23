@@ -2,7 +2,7 @@
 
 // --- CONFIG IA ---
 // ⚠️ REMPLACE CECI PAR TA CLÉ GOOGLE AI STUDIO !
-const GEMINI_API_KEY = "TA_CLE_API_ICI"; 
+const GEMINI_API_KEY = "AIzaSyDGPbpE6NoU6QMmzMEdMNiqLOdDCRqUML4"; 
 
 let currentLang = 'fr';
 const translations = {
@@ -670,4 +670,5 @@ function openCheckModal(idx) {
 }
 function closeCheckModal() { document.getElementById('check-modal').classList.add('hidden'); }
 function revealCheck() { if(checkingPlayerIdx !== -1) document.getElementById('check-secret-box').innerText = gameData[checkingPlayerIdx].word; }
+
 function hideCheck() { document.getElementById('check-secret-box').innerText = translations[currentLang].hold_reveal; }
