@@ -1,11 +1,16 @@
 // script.js
 
 // --- CONFIG IA ---
-const keyPart1 = "AIzaSy"; // Le début standard
-const keyPart2 = "BdG4VSgZy_7Dw5ckNvoGuopxvjJAH7aPQ"; // La suite de ta vraie clé
+// La cle Gemini ne vit PLUS ici : elle est cote serveur, dans le Worker Cloudflare.
+// Remplace l'URL ci-dessous par celle de TON Worker (voir worker/README.md).
+const AI_ENDPOINT = "https://undercover-plus.timeo-jeannin.workers.dev";
 
-// On recolle les morceaux :
-const GEMINI_API_KEY = keyPart1 + keyPart2;
+// Echappe le HTML avant toute injection via innerHTML (noms de joueurs, mots, packs).
+function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+}
 
 let currentLang = 'fr';
 const translations = {
@@ -177,7 +182,7 @@ function renderPackList() {
         row.className = "import-row";
         const left = document.createElement('div');
         left.className = "import-left";
-        left.innerHTML = `<span>📂 ${packName} <span style="font-size:0.8em; color:#666">(${customDB[packName].length} paires)</span></span>`;
+        left.innerHTML = `<span>📂 ${escapeHtml(packName)} <span style="font-size:0.8em; color:#666">(${customDB[packName].length} paires)</span></span>`;
         left.onclick = () => openPackDetail(packName);
         const delBtn = document.createElement('button');
         delBtn.className = "delete-saved-btn";
@@ -225,9 +230,9 @@ function renderPackWords() {
         row.style.cursor = "default";
         row.innerHTML = `
             <div style="flex:1; text-align:left;">
-                <span style="color:#fff;">${pair[0]}</span> 
-                <span style="color:#666;">vs</span> 
-                <span style="color:var(--primary);">${pair[1]}</span>
+                <span style="color:#fff;">${escapeHtml(pair[0])}</span>
+                <span style="color:#666;">vs</span>
+                <span style="color:var(--primary);">${escapeHtml(pair[1])}</span>
             </div>
             <button class="delete-saved-btn" onclick="deletePair(${idx})">×</button>
         `;
@@ -247,62 +252,59 @@ function addPairToPack() {
 }
 function deletePair(idx) { customDB[currentEditingPack].splice(idx, 1); saveCustomDB(); renderPackWords(); }
 
-// --- IA GENERATION (GEMINI) ---
+// --- IA GENERATION (via Worker Cloudflare) ---
 async function generateWordsWithAI() {
     const theme = document.getElementById('ai-theme-input').value.trim();
     if (!theme) return alert("Entrez un thème (ex: Harry Potter) !");
-    if (!GEMINI_API_KEY || GEMINI_API_KEY === "TA_CLE_API_ICI") return alert("Clé API manquante ! Configurez script.js.");
+    if (!currentEditingPack || !customDB[currentEditingPack]) return alert("Ouvrez d'abord un pack.");
+    if (AI_ENDPOINT.includes("CHANGE-MOI")) return alert("Proxy IA non configuré : voir worker/README.md.");
 
     const btn = document.getElementById('btn-generate-ai');
     const originalText = btn.innerHTML; // On sauvegarde le texte "GO" avec son span
     btn.innerHTML = '<div class="loading-spinner"></div>';
     btn.disabled = true;
 
-    // Prompt pour l'IA
-    const prompt = `Génère 15 paires de mots pour le jeu Undercover sur le thème "${theme}".
-    Langue: ${currentLang === 'fr' ? 'Français' : 'Anglais'}.
-    Format STRICT: Uniquement un tableau JSON de tableaux de chaînes. Exemple: [["MotCivil", "MotUndercover"], ["A", "B"]].
-    Les mots doivent être proches mais différents. Il faudrait que les synonymes d'un des mots puissent aussi s'appliquer à l'autre mot. Pas de texte avant ou après le JSON.`;
-
     try {
-        // Utilisation de Gemini 1.5 Flash (rapide et compatible texte)
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(AI_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            body: JSON.stringify({
+                theme,
+                lang: currentLang,
+                count: 15,
+                existing: customDB[currentEditingPack] // pour que le serveur dédoublonne
+            })
         });
 
         const data = await response.json();
-        
-        console.log("Réponse API Gemini :", data);
-
-        if (data.error) {
-            throw new Error(`Erreur API (${data.error.code}): ${data.error.message}`);
+        if (!response.ok || data.error) {
+            throw new Error(data.error || `Erreur serveur (${response.status})`);
         }
 
-        if (!data.candidates || !data.candidates[0]) {
-            throw new Error("L'IA n'a renvoyé aucun résultat (problème de sécurité ou filtre).");
-        }
+        const pairs = Array.isArray(data.pairs) ? data.pairs : [];
 
-        const rawText = data.candidates[0].content.parts[0].text;
-        
-        // Nettoyage du Markdown (```json ... ```)
-        const jsonString = rawText.replace(/```json|```/g, '').trim();
-        const pairs = JSON.parse(jsonString);
+        // Filet de sécurité côté client : validation + dédoublonnage local
+        const existingKeys = new Set(
+            customDB[currentEditingPack].map(p => [p[0], p[1]].map(s => String(s).toLowerCase()).sort().join('|'))
+        );
+        let added = 0;
+        pairs.forEach(p => {
+            if (!Array.isArray(p) || p.length !== 2) return;
+            const a = String(p[0]).trim(), b = String(p[1]).trim();
+            if (!a || !b || a.toLowerCase() === b.toLowerCase()) return;
+            const k = [a, b].map(s => s.toLowerCase()).sort().join('|');
+            if (existingKeys.has(k)) return;
+            existingKeys.add(k);
+            customDB[currentEditingPack].push([a, b]);
+            added++;
+        });
 
-        if (Array.isArray(pairs)) {
-            pairs.forEach(p => {
-                if(Array.isArray(p) && p.length === 2) {
-                    customDB[currentEditingPack].push(p);
-                }
-            });
-            saveCustomDB();
-            renderPackWords();
-            document.getElementById('ai-theme-input').value = "";
-            alert(`✨ ${pairs.length} paires ajoutées !`);
-        } else {
-            throw new Error("Format invalide reçu de l'IA");
-        }
+        if (added === 0) throw new Error("Aucune nouvelle paire (déjà toutes présentes ?). Réessaie.");
+
+        saveCustomDB();
+        renderPackWords();
+        document.getElementById('ai-theme-input').value = "";
+        alert(`✨ ${added} paire${added > 1 ? 's' : ''} ajoutée${added > 1 ? 's' : ''} !`);
     } catch (error) {
         console.error(error);
         alert("Oups ! " + error.message);
@@ -350,12 +352,18 @@ async function openAddPlayerModal() {
     switchTab('new');
 }
 function closeAddModal() { document.getElementById('modal-add-player').classList.add('hidden'); }
-function switchTab(tab) {
+function switchTab(tab, evt) {
     document.getElementById('tab-new').classList.add('hidden');
     document.getElementById('tab-existing').classList.add('hidden');
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const btns = document.querySelectorAll('.tab-btn');
+    btns.forEach(b => b.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.remove('hidden');
-    event.target.classList.add('active');
+    // Onglet actif : via l'événement si dispo, sinon par position (new=0, existing=1)
+    if (evt && evt.target) {
+        evt.target.classList.add('active');
+    } else if (btns.length) {
+        btns[tab === 'new' ? 0 : 1].classList.add('active');
+    }
 }
 function previewImage(input) {
     if (input.files && input.files[0]) {
@@ -390,7 +398,7 @@ function renderImportList() {
         div.className = "import-row";
         const leftDiv = document.createElement('div');
         leftDiv.className = "import-left";
-        leftDiv.innerHTML = `<img src="${p.avatar}" class="avatar-small"> <span>${p.name}</span>`;
+        leftDiv.innerHTML = `<img src="${p.avatar}" class="avatar-small"> <span>${escapeHtml(p.name)}</span>`;
         leftDiv.onclick = () => {
             if(!currentPlayers.find(cp => cp.name === p.name)){
                 addPlayerToGame(p);
@@ -439,7 +447,7 @@ function renderSetupList() {
         div.innerHTML = `
             <div class="remove-btn" onclick="removePlayer(${idx})">×</div>
             <img src="${p.avatar}">
-            <div style="font-size:12px; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
+            <div style="font-size:12px; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(p.name)}</div>
         `;
         container.appendChild(div);
     });
@@ -560,7 +568,7 @@ function renderGameList() {
             <div class="player-info">
                 <span class="player-order">${p.playOrder}.</span>
                 <img src="${p.avatar}" class="avatar-small">
-                <span class="player-name">${p.name}</span>
+                <span class="player-name">${escapeHtml(p.name)}</span>
             </div>
             <div>${actions}</div>
         `;
@@ -657,7 +665,7 @@ function showEndScreen(winnerRole) {
     winners.forEach(p => {
         const div = document.createElement('div');
         div.className = "player-chip";
-        div.innerHTML = `<img src="${p.avatar}"><div style="font-size:12px;">${p.name}</div>`;
+        div.innerHTML = `<img src="${p.avatar}"><div style="font-size:12px;">${escapeHtml(p.name)}</div>`;
         winnersList.appendChild(div);
     });
 

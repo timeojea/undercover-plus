@@ -1,4 +1,6 @@
-const CACHE_NAME = 'undercover-v1';
+// IMPORTANT : incrémenter cette version à CHAQUE déploiement, sinon les
+// utilisateurs gardent l'ancienne version en cache (stratégie cache-first).
+const CACHE_NAME = 'undercover-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

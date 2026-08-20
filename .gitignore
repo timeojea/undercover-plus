@@ -1,0 +1,8 @@
+# Cloudflare Worker
+worker/node_modules/
+worker/.wrangler/
+.dev.vars
+
+# OS / éditeur
+.DS_Store
+*.log
