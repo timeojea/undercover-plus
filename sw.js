@@ -1,7 +1,7 @@
 // NETWORK-FIRST strategy: online, always serve the latest version;
 // the cache is only an offline fallback. No manual bump needed to ship
 // an update (bumping is still useful to purge old caches).
-const CACHE_NAME = 'undercover-v3';
+const CACHE_NAME = 'undercover-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -38,7 +38,9 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
 
   event.respondWith(
-    fetch(req)
+    // cache: 'no-cache' = always revalidate with the server (304 if unchanged),
+    // so the browser's HTTP cache can't serve a stale script.js
+    fetch(req, { cache: 'no-cache' })
       .then((response) => {
         if (response.ok) {
           const copy = response.clone();

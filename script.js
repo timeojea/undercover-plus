@@ -37,8 +37,6 @@ const translations = {
         not_enough_bad: "Il faut au moins 1 Undercover ou 1 Mr. White !",
         name_empty: "Nom vide !",
         already_in: "Ce joueur est déjà dans la partie !",
-        incorrect_code: "Code incorrect !",
-        enter_pin: "Entrez le code PIN pour supprimer ce joueur :",
         eliminate_confirm: "Éliminer",
         is_eliminated: "est éliminé !",
         role: "Rôle",
@@ -78,8 +76,6 @@ const translations = {
         not_enough_bad: "Need at least 1 Undercover or 1 Mr. White!",
         name_empty: "Empty name!",
         already_in: "Player already in game!",
-        incorrect_code: "Incorrect code!",
-        enter_pin: "Enter PIN code to delete player:",
         eliminate_confirm: "Eliminate",
         is_eliminated: "is eliminated!",
         role: "Role",
@@ -417,15 +413,9 @@ function renderImportList() {
     });
 }
 function deleteSavedPlayer(idx) {
-    const t = translations[currentLang];
-    const code = prompt(t.enter_pin);
-    if (code === "4862") {
-        savedPlayers.splice(idx, 1);
-        saveDB();
-        renderImportList();
-    } else {
-        alert(t.incorrect_code);
-    }
+    savedPlayers.splice(idx, 1);
+    saveDB();
+    renderImportList();
 }
 function addPlayerToGame(playerObj) {
     currentPlayers.push(playerObj);

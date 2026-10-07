@@ -131,7 +131,6 @@ const DATABASE = {
 - **AI generation needs a connection** and is bound by the Worker's Gemini free-tier quota.
 - **Per-device data**: players and packs live in the browser's `localStorage`, with no sync.
 - **English lists are shorter** than the French ones (24 to 39 pairs vs ~50).
-- Deleting a saved player is guarded by a PIN (`4862`) written in the code: it prevents accidents, it is not security.
 
 ## 🤝 Contributing
 
