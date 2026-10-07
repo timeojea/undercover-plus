@@ -153,21 +153,23 @@ footer { text-align: center; padding: 20px; color: var(--subtext); font-size: 0.
     height: 42px; /* Hauteur fixe pour forcer l'alignement */
 }
 
-/* Input texte */
-.rgb-input {
+/* Input texte — sélecteur `input.rgb-input` (et pas `.rgb-input`) pour battre
+   la spécificité de `input[type="text"]`, dont le margin-bottom décalait l'input */
+input.rgb-input {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid #333;
     color: white;
     border-radius: 8px;
     padding: 0 12px; /* Padding horizontal seulement */
-    font-size: 15px;
+    font-size: 16px; /* < 16px = zoom auto d'iOS au focus */
     width: 100%;
     height: 100%; /* Prend toute la hauteur définie (42px) */
     box-sizing: border-box;
+    margin: 0;
     transition: all 0.3s;
     line-height: 42px; /* Centre le texte verticalement */
 }
-.rgb-input:focus {
+input.rgb-input:focus {
     outline: none;
     background: rgba(255, 255, 255, 0.1);
     border-color: #555;
