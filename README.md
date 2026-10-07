@@ -2,14 +2,14 @@
 
 # Undercover+
 
-**Le jeu de soirée *Undercover* sur un seul téléphone, avec des paires de mots générées par IA sur n'importe quel thème.**
-Gratuit · Sans inscription · Sans pub · Jouable hors-ligne · Bilingue FR/EN
+**The *Undercover* party game on a single phone, with AI-generated word pairs on any theme.**
+Free · No sign-up · No ads · Works offline · English & French
 
-### [▶ Jouer : timeojea.github.io/undercover-plus](https://timeojea.github.io/undercover-plus/)
+### [▶ Play: timeojea.github.io/undercover-plus](https://timeojea.github.io/undercover-plus/)
 
 [![Deploy](https://github.com/timeojea/undercover-plus/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/timeojea/undercover-plus/actions/workflows/pages/pages-build-deployment)
 [![License: MIT](https://img.shields.io/badge/license-MIT-ff2d6f.svg)](LICENSE)
-![JavaScript](https://img.shields.io/badge/JavaScript_vanilla-F7DF1E?logo=javascript&logoColor=black)
+![JavaScript](https://img.shields.io/badge/vanilla_JavaScript-F7DF1E?logo=javascript&logoColor=black)
 ![PWA](https://img.shields.io/badge/PWA-5A0FC8?logo=pwa&logoColor=white)
 ![Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-8E75B2?logo=googlegemini&logoColor=white)
 ![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Workers-F38020?logo=cloudflare&logoColor=white)
@@ -19,61 +19,61 @@ Gratuit · Sans inscription · Sans pub · Jouable hors-ligne · Bilingue FR/EN
 
 ---
 
-## 🎮 Règles du jeu
+## 🎮 How to play
 
-Un seul téléphone passe de main en main. Chaque joueur découvre son rôle en secret :
+One phone is passed around. Each player secretly discovers their role:
 
-| Rôle | Reçoit |
+| Role | Gets |
 |---|---|
-| 🧑 **Civil** | Le mot secret commun (ex. *Chat*) |
-| 🕵️ **Undercover** | Un mot proche mais différent (ex. *Tigre*) |
-| 👻 **Mr. White** | Aucun mot : il doit bluffer |
+| 🧑 **Civilian** | The shared secret word (e.g. *Cat*) |
+| 🕵️ **Undercover** | A close but different word (e.g. *Tiger*) |
+| 👻 **Mr. White** | No word at all: has to bluff |
 
-À tour de rôle, chacun décrit son mot **en un seul mot**, puis le groupe vote pour éliminer un suspect.
-Les Civils gagnent en éliminant tous les imposteurs ; les imposteurs gagnent dès qu'ils sont au moins aussi nombreux que les Civils encore en jeu.
-Un Mr. White éliminé a une dernière chance : **deviner le mot des Civils** pour l'emporter.
+Taking turns, everyone describes their word **in a single word**, then the group votes to eliminate a suspect.
+Civilians win by eliminating every impostor; impostors win as soon as they are at least as many as the remaining Civilians.
+An eliminated Mr. White gets one last chance: **guess the Civilians' word** to win.
 
-## ✨ Fonctionnalités
+## ✨ Features
 
 | | |
 |---|---|
-| 🤖 **Mots par IA** | Tapez un thème (« Harry Potter », « Plage »…), Gemini génère 15 paires originales, sans doublon avec le pack |
-| 📚 **Listes intégrées** | 3 packs officiels par langue : Nature & animaux, Sports & loisirs, Jeux vidéo (~50 paires en FR) |
-| ✏️ **Éditeur de packs** | Créez, remplissez et supprimez vos propres packs de mots |
-| 👥 **Joueurs sauvegardés** | Avatars auto (initiales colorées) ou photo, réimport d'une partie à l'autre |
-| 🤫 **Révélation secrète** | Maintenir l'écran appuyé pour voir son rôle, relâcher pour le cacher |
-| 🎲 **Tirage équitable** | Mot civil / undercover tiré au hasard dans la paire, Mr. White ne commence jamais |
-| 🌍 **Bilingue** | Interface et mots en français ou en anglais, bascule instantanée |
-| 📦 **PWA** | Installable sur l'écran d'accueil, jouable hors-ligne (hors génération IA) |
+| 🤖 **AI word pairs** | Type a theme ("Harry Potter", "Beach"…), Gemini generates 15 original pairs, never duplicating the pack |
+| 📚 **Built-in lists** | 3 official packs per language: Nature & Animals, Sports & Hobbies, Video Games (~50 pairs in French) |
+| ✏️ **Pack editor** | Create, fill and delete your own word packs |
+| 👥 **Saved players** | Auto avatars (colored initials) or a photo, re-import them game after game |
+| 🤫 **Secret reveal** | Hold the screen to see your role, release to hide it |
+| 🎲 **Fair draw** | Civilian / Undercover word picked at random within the pair, Mr. White never speaks first |
+| 🌍 **Bilingual** | Interface and words in English or French, instant switch |
+| 📦 **PWA** | Installable on the home screen, playable offline (except AI generation) |
 
-## ⚙️ Comment ça marche
+## ⚙️ How it works
 
-Le jeu est **100 % statique** (HTML/CSS/JS vanilla, aucun framework, aucune étape de build) et tout tient dans le navigateur : joueurs, packs et lobby sont stockés en `localStorage`.
+The game is **100% static** (vanilla HTML/CSS/JS, no framework, no build step) and lives entirely in the browser: players, packs and lobby are stored in `localStorage`.
 
-Seule la génération IA sort du téléphone. Elle passe par un petit **Worker Cloudflare** qui garde la clé Gemini et le prompt côté serveur : la clé n'est jamais exposée dans le front.
+Only AI generation leaves the phone. It goes through a small **Cloudflare Worker** that keeps the Gemini key and the prompt server-side: the key is never exposed in the front-end.
 
 ```mermaid
 sequenceDiagram
-    actor J as Joueur
-    participant A as Undercover+<br/>(navigateur)
-    participant W as Worker Cloudflare
+    actor J as Player
+    participant A as Undercover+<br/>(browser)
+    participant W as Cloudflare Worker
     participant G as Google Gemini
 
-    J->>A: Thème « Harry Potter »
+    J->>A: Theme "Harry Potter"
     A->>W: POST {theme, lang, existing}
-    W->>G: Prompt + clé (secret)
-    G-->>W: Paires en JSON
-    W-->>A: {pairs} dédoublonnées
-    A->>A: Ajout au pack (localStorage)
+    W->>G: Prompt + key (secret)
+    G-->>W: Pairs as JSON
+    W-->>A: Deduplicated {pairs}
+    A->>A: Add to pack (localStorage)
 ```
 
-- Le Worker essaie `gemini-2.5-flash`, puis retombe sur `gemini-2.5-flash-lite` en cas de surcharge (503/429).
-- Réponse en **mode JSON natif** (`responseSchema`) : pas de parsing fragile.
-- Le service worker est **network-first** : en ligne on reçoit toujours la dernière version, le cache ne sert qu'hors-ligne.
+- The Worker tries `gemini-2.5-flash`, then falls back to `gemini-2.5-flash-lite` when overloaded (503/429).
+- Responses use **native JSON mode** (`responseSchema`): no fragile parsing.
+- The service worker is **network-first**: online you always get the latest version, the cache is only an offline fallback.
 
-## 🚀 Lancer en local
+## 🚀 Run locally
 
-Aucune dépendance. Il suffit d'un serveur de fichiers statiques (le service worker ne fonctionne pas en `file://`) :
+No dependencies. All you need is a static file server (the service worker doesn't run on `file://`):
 
 ```bash
 git clone https://github.com/timeojea/undercover-plus.git
@@ -81,68 +81,68 @@ cd undercover-plus
 python -m http.server 8000
 ```
 
-Ouvrir **[localhost:8000](http://localhost:8000)**. `npx serve` ou l'extension Live Server de VS Code marchent aussi.
+Open **[localhost:8000](http://localhost:8000)**. `npx serve` or VS Code's Live Server extension work too.
 
-Tout fonctionne sans configuration, y compris la génération IA, qui appelle le Worker public défini par `AI_ENDPOINT` en haut de [`script.js`](script.js).
+Everything works out of the box, AI generation included: it calls the public Worker set by `AI_ENDPOINT` at the top of [`script.js`](script.js).
 
-## 🌍 Héberger votre propre copie
+## 🌍 Host your own copy
 
-1. **Forkez** le dépôt.
-2. **Settings → Pages → Source : Deploy from a branch**, branche `main`, dossier `/`.
-3. **Déployez votre Worker IA** (compte Cloudflare gratuit + clé [Google AI Studio](https://aistudio.google.com/apikey) gratuite) :
+1. **Fork** the repository.
+2. **Settings → Pages → Source: Deploy from a branch**, branch `main`, folder `/`.
+3. **Deploy your own AI Worker** (free Cloudflare account + free [Google AI Studio](https://aistudio.google.com/apikey) key):
    ```bash
    cd worker
    npx wrangler login
    npx wrangler secret put GEMINI_API_KEY
    npx wrangler deploy
    ```
-   Détails : [`worker/README.md`](worker/README.md).
-4. Remplacez `AI_ENDPOINT` dans [`script.js`](script.js) par l'URL de votre Worker.
-5. Recommandé : renseignez `ALLOWED_ORIGIN` dans [`worker/wrangler.toml`](worker/wrangler.toml) avec votre domaine, puis redéployez.
+   Details: [`worker/README.md`](worker/README.md).
+4. Set `AI_ENDPOINT` in [`script.js`](script.js) to your Worker's URL.
+5. Recommended: set `ALLOWED_ORIGIN` in [`worker/wrangler.toml`](worker/wrangler.toml) to your domain, then redeploy.
 
-## 🗂️ Structure
+## 🗂️ Project structure
 
 ```
-├── index.html                — Structure + toutes les modales
-├── script.js                 — Logique de jeu, joueurs, packs, i18n, appel IA
-├── data.js                   — Listes de mots intégrées (FR / EN)
-├── style.css                 — Thème sombre, interface néon
-├── sw.js                     — Service worker (network-first, hors-ligne)
-├── manifest.json             — Manifest PWA
+├── index.html                — Markup + every modal
+├── script.js                 — Game logic, players, packs, i18n, AI call
+├── data.js                   — Built-in word lists (FR / EN)
+├── style.css                 — Dark theme, neon UI
+├── sw.js                     — Service worker (network-first, offline)
+├── manifest.json             — PWA manifest
 └── worker/
-    ├── undercover-plus.js    — Proxy Gemini (clé, prompt, repli de modèle, dédoublonnage)
-    └── wrangler.toml         — Config Cloudflare
+    ├── undercover-plus.js    — Gemini proxy (key, prompt, model fallback, deduplication)
+    └── wrangler.toml         — Cloudflare config
 ```
 
-Pour ajouter des listes permanentes, éditez l'objet `DATABASE` de [`data.js`](data.js) :
+To add permanent lists, edit the `DATABASE` object in [`data.js`](data.js):
 
 ```javascript
 const DATABASE = {
-    "fr": {
-        "Nature et animaux": [["Chat", "Tigre"], ...],
+    "en": {
+        "Nature & Animals": [["Cat", "Tiger"], ...],
         // ...
     },
-    "en": { /* ... */ }
+    "fr": { /* ... */ }
 };
 ```
 
-## ⚠️ Limites connues
+## ⚠️ Known limitations
 
-- **Génération IA en ligne uniquement**, et soumise au quota gratuit Gemini du Worker.
-- **Données par appareil** : joueurs et packs vivent dans le `localStorage` du navigateur, sans synchronisation.
-- **Listes anglaises plus courtes** que les françaises (24 à 39 paires contre ~50).
-- La suppression d'un joueur sauvegardé est protégée par un code PIN (`4862`) écrit dans le code : il évite les fausses manipulations, ce n'est pas une sécurité.
+- **AI generation needs a connection** and is bound by the Worker's Gemini free-tier quota.
+- **Per-device data**: players and packs live in the browser's `localStorage`, with no sync.
+- **English lists are shorter** than the French ones (24 to 39 pairs vs ~50).
+- Deleting a saved player is guarded by a PIN (`4862`) written in the code: it prevents accidents, it is not security.
 
-## 🤝 Contribuer
+## 🤝 Contributing
 
-Issues et pull requests bienvenues : [ouvrir une issue](https://github.com/timeojea/undercover-plus/issues). Gardez l'esprit du projet : vanilla, sans framework ni build.
+Issues and pull requests are welcome: [open an issue](https://github.com/timeojea/undercover-plus/issues). Keep the project's spirit: vanilla, no framework, no build step.
 
-Pistes ouvertes :
-- prévisualiser les paires IA avant de les ajouter ;
-- remplacer les `alert` / `confirm` / `prompt` par des modales ;
-- suivi des scores entre les manches ;
-- compléter les listes anglaises.
+Open ideas:
+- preview AI pairs before adding them;
+- replace `alert` / `confirm` / `prompt` with modals;
+- score tracking across rounds;
+- longer English lists.
 
-## 📄 Licence
+## 📄 License
 
 [MIT](LICENSE) © Timéo Jeannin

@@ -1,6 +1,6 @@
-// Stratégie NETWORK-FIRST : en ligne on sert toujours la dernière version,
-// le cache ne sert que de repli hors-ligne. Plus besoin de bump manuel pour
-// propager une MAJ (le bump reste utile pour purger les vieux caches).
+// NETWORK-FIRST strategy: online, always serve the latest version;
+// the cache is only an offline fallback. No manual bump needed to ship
+// an update (bumping is still useful to purge old caches).
 const CACHE_NAME = 'undercover-v3';
 const ASSETS_TO_CACHE = [
   './',
@@ -9,12 +9,12 @@ const ASSETS_TO_CACHE = [
   './script.js',
   './data.js',
   './manifest.json',
-  './app_logo.png', // Pour le favicon et l'icône PWA
-  './image_2.png'   // Pour l'interface du jeu
+  './app_logo.png', // Favicon and PWA icon
+  './image_2.png'   // In-game UI
 ];
 
-// Installation : pré-cache + activation immédiate (sans attendre la fermeture
-// de tous les onglets, sinon un onglet mobile resté ouvert bloque la MAJ)
+// Install: pre-cache + activate immediately (without waiting for every tab
+// to close, otherwise a mobile tab left open blocks the update)
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
@@ -22,7 +22,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activation : purge des anciens caches + prise de contrôle des pages ouvertes
+// Activate: purge old caches + take control of open pages
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
@@ -31,8 +31,8 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Requêtes : réseau d'abord (même origine, GET), cache en repli hors-ligne.
-// Les appels externes (Worker IA) ne passent pas par le SW.
+// Fetch: network first (same origin, GET), cache as offline fallback.
+// External calls (AI Worker) bypass the SW.
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;

@@ -1,15 +1,15 @@
-// Undercover+ — Proxy IA (Cloudflare Worker)
+// Undercover+ — AI proxy (Cloudflare Worker)
 // -------------------------------------------------
-// Garde la cle Google Gemini cote serveur : le front n'y a jamais acces.
-// Le client envoie { theme, lang, count, existing } et recoit { pairs: [[civil, undercover], ...] }.
+// Keeps the Google Gemini key server-side: the front-end never sees it.
+// The client sends { theme, lang, count, existing } and gets { pairs: [[civilian, undercover], ...] }.
 //
-// Config (Cloudflare > Settings > Variables) :
-//   - GEMINI_API_KEY : secret (ta cle Google AI Studio)  -> "Encrypt"
-//   - ALLOWED_ORIGIN : optionnel, ex "https://timeojea.github.io" (verrouille le CORS)
+// Config (Cloudflare > Settings > Variables):
+//   - GEMINI_API_KEY: secret (your Google AI Studio key)  -> "Encrypt"
+//   - ALLOWED_ORIGIN: optional, e.g. "https://timeojea.github.io" (locks CORS)
 //
-// Deploiement : voir worker/README.md
+// Deployment: see worker/README.md
 
-// On tente le meilleur modele d'abord, puis on retombe sur flash-lite si surcharge (503).
+// Try the best model first, fall back to flash-lite when overloaded (503).
 const MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
 
 export default {
@@ -47,7 +47,7 @@ export default {
     const prompt = buildPrompt({ theme, lang, count, existing });
 
     let lastError = "Erreur inconnue.";
-    // On essaie chaque modele dans l'ordre ; un 503 (surcharge) fait passer au suivant.
+    // Try each model in order; a 503 (overload) moves on to the next one.
     for (const model of MODELS) {
       let data;
       try {
@@ -59,10 +59,10 @@ export default {
             body: JSON.stringify({
               contents: [{ parts: [{ text: prompt }] }],
               generationConfig: {
-                temperature: 1.1, // varie les resultats d'une generation a l'autre
+                temperature: 1.1, // vary results between generations
                 topP: 0.95,
                 responseMimeType: "application/json",
-                // Pas de raisonnement : inutile pour des paires de mots, et ca coute ~10s.
+                // No thinking: useless for word pairs, and it costs ~10s.
                 thinkingConfig: { thinkingBudget: 0 },
                 responseSchema: {
                   type: "array",
@@ -83,12 +83,12 @@ export default {
         data = await geminiRes.json();
       } catch (e) {
         lastError = "Erreur reseau vers Gemini : " + e.message;
-        continue; // on tente le modele suivant
+        continue; // try the next model
       }
 
       if (data.error) {
         lastError = `Gemini (${data.error.code}): ${data.error.message}`;
-        // 503 = surcharge temporaire -> on tente le modele suivant. Autre erreur -> on arrete.
+        // 503 = temporary overload -> try the next model. Any other error -> stop.
         if (data.error.code === 503 || data.error.code === 429) continue;
         return json({ error: lastError }, 502, cors);
       }
@@ -116,12 +116,12 @@ export default {
       return json({ pairs }, 200, cors);
     }
 
-    // Tous les modeles ont echoue
+    // Every model failed
     return json({ error: lastError + " Reessaie dans un instant." }, 502, cors);
   },
 };
 
-// --- Prompt : c'est ici que se joue la qualite des paires ---
+// --- Prompt: this is where pair quality is decided ---
 function buildPrompt({ theme, lang, count, existing }) {
   const langLabel = lang === "en" ? "anglais" : "francais";
   const examples =
@@ -158,7 +158,7 @@ Theme demande : "${theme}".
 Genere ${count} paires ORIGINALES et VARIEES sur ce theme, sans doublon entre elles.${existingBlock}`;
 }
 
-// Nettoie, valide et dedoublonne les paires renvoyees par l'IA.
+// Clean, validate and deduplicate the pairs returned by the AI.
 function normalizePairs(parsed, existing) {
   if (!Array.isArray(parsed)) return [];
   const seen = new Set(
@@ -178,9 +178,9 @@ function normalizePairs(parsed, existing) {
     a = clean(a);
     b = clean(b);
     if (!a || !b) continue;
-    if (a.toLowerCase() === b.toLowerCase()) continue; // paire identique
+    if (a.toLowerCase() === b.toLowerCase()) continue; // identical pair
     const k = key(a, b);
-    if (seen.has(k)) continue; // doublon
+    if (seen.has(k)) continue; // duplicate
     seen.add(k);
     out.push([a, b]);
   }

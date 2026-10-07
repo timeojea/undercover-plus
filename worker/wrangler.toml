@@ -2,9 +2,9 @@ name = "undercover-plus"
 main = "undercover-plus.js"
 compatibility_date = "2024-11-01"
 
-# La cle se pose en SECRET, pas ici :
+# The key is set as a SECRET, not here:
 #   npx wrangler secret put GEMINI_API_KEY
 #
-# Optionnel : verrouiller le CORS a ton domaine (sinon "*")
+# Optional: lock CORS to your domain (otherwise "*")
 # [vars]
 # ALLOWED_ORIGIN = "https://timeojea.github.io"

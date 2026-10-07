@@ -5,7 +5,7 @@ body { background-color: var(--bg); color: var(--text); font-family: -apple-syst
 .hidden { display: none !important; }
 .center-content { align-items: center; justify-content: center; text-align: center; }
 
-/* LANGUE & LOGO */
+/* LANGUAGE & LOGO */
 .lang-switch { display: flex; justify-content: flex-end; width: 100%; margin-bottom: 10px; }
 .lang-btn { background: transparent; color: #666; border: 1px solid #444; padding: 5px 10px; margin-left: 5px; border-radius: 5px; cursor: pointer; font-size: 12px; }
 .lang-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -25,7 +25,7 @@ select {
 option { background-color: #333; color: white; }
 input[type="text"] { background: transparent; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; font-size: 16px; width: 90%; margin-bottom: 10px; }
 
-/* Compteurs */
+/* Counters */
 .counter-box { display: flex; align-items: center; background: #2a2a2a; border-radius: 8px; padding: 2px; }
 .btn-counter { background: #444; color: white; border: none; width: 35px; height: 35px; border-radius: 6px; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .btn-counter:active { background: var(--primary); }
@@ -82,26 +82,26 @@ input[type="text"] { background: transparent; border: 1px solid #444; color: whi
 footer { text-align: center; padding: 20px; color: var(--subtext); font-size: 0.9em; margin-top: auto; }
 
 /* ---------------------------------------------------- */
-/* DESIGN RGB STABLE & ALIGNÉ (Vitesse rapide)          */
+/* RGB DESIGN (stable, aligned, fast animation)         */
 /* ---------------------------------------------------- */
 
-/* 1. La Boîte Globale RGB (Conteneur) */
+/* 1. Outer RGB box (container) */
 .rgb-container {
     position: relative;
-    padding: 1.5px; /* Bordure plus fine */
-    border-radius: 12px; /* Moins rond, plus compact */
+    padding: 1.5px; /* Thinner border */
+    border-radius: 12px; /* Less rounded, more compact */
     margin-bottom: 20px;
     background: transparent;
     z-index: 1;
 }
 
-/* Bordure lumineuse */
+/* Glowing border */
 .rgb-container::before {
     content: "";
     position: absolute;
     inset: 0;
     border-radius: 12px;
-    padding: 1.5px; /* Bordure plus fine */
+    padding: 1.5px; /* Thinner border */
     background: conic-gradient(
         from 0deg,
         #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3, #ff6b6b
@@ -112,23 +112,23 @@ footer { text-align: center; padding: 20px; color: var(--subtext); font-size: 0.
     mask-composite: exclude;
     
     z-index: -1;
-    /* VITESSE AUGMENTÉE ICI (2s au lieu de 6s) */
+    /* Faster animation (2s instead of 6s) */
     animation: hue-rotating 2s linear infinite; 
     filter: blur(0.5px);
 }
 
-/* Fond noir interne */
+/* Inner black background */
 .rgb-inner {
     background: #0a0a0a;
     border-radius: 10px;
-    padding: 12px; /* Moins de padding interne */
+    padding: 12px; /* Less inner padding */
     display: flex;
     flex-direction: column;
     gap: 8px;
     box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
 }
 
-/* Titre "Générer avec IA" */
+/* "Generate with AI" title */
 .rgb-label {
     font-size: 0.8em;
     font-weight: 800;
@@ -145,29 +145,29 @@ footer { text-align: center; padding: 20px; color: var(--subtext); font-size: 0.
     animation: hue-rotating 2s linear infinite;
 }
 
-/* Zone flexible pour aligner input et bouton */
+/* Flex row aligning the input and the button */
 .rgb-flex {
     display: flex; 
     gap: 8px; 
-    align-items: center; /* Aligne verticalement */
-    height: 42px; /* Hauteur fixe pour forcer l'alignement */
+    align-items: center; /* Vertical alignment */
+    height: 42px; /* Fixed height to force alignment */
 }
 
-/* Input texte — sélecteur `input.rgb-input` (et pas `.rgb-input`) pour battre
-   la spécificité de `input[type="text"]`, dont le margin-bottom décalait l'input */
+/* Text input — `input.rgb-input` (not `.rgb-input`) to beat the specificity of
+   `input[type="text"]`, whose margin-bottom pushed the input out of line */
 input.rgb-input {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid #333;
     color: white;
     border-radius: 8px;
-    padding: 0 12px; /* Padding horizontal seulement */
-    font-size: 16px; /* < 16px = zoom auto d'iOS au focus */
+    padding: 0 12px; /* Horizontal padding only */
+    font-size: 16px; /* < 16px triggers iOS auto-zoom on focus */
     width: 100%;
-    height: 100%; /* Prend toute la hauteur définie (42px) */
+    height: 100%; /* Fill the row height (42px) */
     box-sizing: border-box;
     margin: 0;
     transition: all 0.3s;
-    line-height: 42px; /* Centre le texte verticalement */
+    line-height: 42px; /* Center text vertically */
 }
 input.rgb-input:focus {
     outline: none;
@@ -175,11 +175,11 @@ input.rgb-input:focus {
     border-color: #555;
 }
 
-/* 2. Le Bouton "GO" style Pilule RGB (Affiné) */
+/* 2. "GO" button, RGB pill style */
 .btn-ai-rgb {
     position: relative;
-    padding: 0 20px; /* Moins large */
-    height: 100%; /* S'adapte à la hauteur de 42px */
+    padding: 0 20px; /* Narrower */
+    height: 100%; /* Matches the 42px row height */
     font-size: 16px;
     font-weight: bold;
     color: white;
@@ -199,7 +199,7 @@ input.rgb-input:focus {
 .btn-ai-rgb:hover { transform: scale(1.05); }
 .btn-ai-rgb:active { transform: scale(0.95); }
 
-/* Anneau multicolore du bouton */
+/* Button's multicolor ring */
 .btn-ai-rgb::before {
     content: "";
     position: absolute;
@@ -210,22 +210,22 @@ input.rgb-input:focus {
         #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3, #ff6b6b
     );
     z-index: -2;
-    filter: blur(6px); /* Flou légèrement réduit pour plus de netteté */
-    animation: hue-rotating 1.5s linear infinite; /* Très rapide */
+    filter: blur(6px); /* Slightly less blur for sharpness */
+    animation: hue-rotating 1.5s linear infinite; /* Very fast */
 }
 
-/* Fond noir interne du bouton */
+/* Button's inner black background */
 .btn-ai-rgb::after {
     content: "";
     position: absolute;
-    inset: 2px; /* Bordure interne plus fine (2px au lieu de 3) */
+    inset: 2px; /* Thinner inner border (2px instead of 3) */
     background: #000;
     border-radius: 47px;
     z-index: -1;
     filter: blur(0.5px);
 }
 
-/* Texte dégradé */
+/* Gradient text */
 .gradient-text {
     color: transparent;
     background: conic-gradient(
@@ -238,7 +238,7 @@ input.rgb-input:focus {
 }
 .btn-ai-rgb:hover .gradient-text { animation: hue-rotating 0.5s linear infinite; }
 
-/* Animation ultra fluide */
+/* Smooth animation */
 @keyframes hue-rotating {
     from { filter: hue-rotate(0deg); }
     to { filter: hue-rotate(360deg); }

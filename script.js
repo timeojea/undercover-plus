@@ -1,11 +1,11 @@
 // script.js
 
-// --- CONFIG IA ---
-// La cle Gemini ne vit PLUS ici : elle est cote serveur, dans le Worker Cloudflare.
-// Remplace l'URL ci-dessous par celle de TON Worker (voir worker/README.md).
+// --- AI CONFIG ---
+// The Gemini key does NOT live here: it is server-side, in the Cloudflare Worker.
+// Replace the URL below with YOUR Worker's URL (see worker/README.md).
 const AI_ENDPOINT = "https://undercover-plus.timeo-jeannin.workers.dev";
 
-// Echappe le HTML avant toute injection via innerHTML (noms de joueurs, mots, packs).
+// Escape HTML before any innerHTML injection (player names, words, packs).
 function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -169,7 +169,7 @@ function updateCategorySelect() {
     if (currentVal) select.value = currentVal;
 }
 
-// --- EDITOR & IA LOGIC ---
+// --- EDITOR & AI LOGIC ---
 function openWordEditor() { document.getElementById('modal-word-editor').classList.remove('hidden'); renderPackList(); }
 function closeWordEditor() { document.getElementById('modal-word-editor').classList.add('hidden'); }
 function renderPackList() {
@@ -252,7 +252,7 @@ function addPairToPack() {
 }
 function deletePair(idx) { customDB[currentEditingPack].splice(idx, 1); saveCustomDB(); renderPackWords(); }
 
-// --- IA GENERATION (via Worker Cloudflare) ---
+// --- AI GENERATION (via Cloudflare Worker) ---
 async function generateWordsWithAI() {
     const theme = document.getElementById('ai-theme-input').value.trim();
     if (!theme) return alert("Entrez un thème (ex: Harry Potter) !");
@@ -260,7 +260,7 @@ async function generateWordsWithAI() {
     if (AI_ENDPOINT.includes("CHANGE-MOI")) return alert("Proxy IA non configuré : voir worker/README.md.");
 
     const btn = document.getElementById('btn-generate-ai');
-    const originalText = btn.innerHTML; // On sauvegarde le texte "GO" avec son span
+    const originalText = btn.innerHTML; // Save the "GO" label with its span
     btn.innerHTML = '<div class="loading-spinner"></div>';
     btn.disabled = true;
 
@@ -272,7 +272,7 @@ async function generateWordsWithAI() {
                 theme,
                 lang: currentLang,
                 count: 15,
-                existing: customDB[currentEditingPack] // pour que le serveur dédoublonne
+                existing: customDB[currentEditingPack] // so the server can deduplicate
             })
         });
 
@@ -283,7 +283,7 @@ async function generateWordsWithAI() {
 
         const pairs = Array.isArray(data.pairs) ? data.pairs : [];
 
-        // Filet de sécurité côté client : validation + dédoublonnage local
+        // Client-side safety net: validation + local deduplication
         const existingKeys = new Set(
             customDB[currentEditingPack].map(p => [p[0], p[1]].map(s => String(s).toLowerCase()).sort().join('|'))
         );
@@ -309,7 +309,7 @@ async function generateWordsWithAI() {
         console.error(error);
         alert("Oups ! " + error.message);
     } finally {
-        btn.innerHTML = originalText; // Remet le bouton avec le texte gradient
+        btn.innerHTML = originalText; // Restore the button with its gradient label
         btn.disabled = false;
     }
 }
@@ -358,7 +358,7 @@ function switchTab(tab, evt) {
     const btns = document.querySelectorAll('.tab-btn');
     btns.forEach(b => b.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.remove('hidden');
-    // Onglet actif : via l'événement si dispo, sinon par position (new=0, existing=1)
+    // Active tab: from the event if available, otherwise by position (new=0, existing=1)
     if (evt && evt.target) {
         evt.target.classList.add('active');
     } else if (btns.length) {
@@ -458,7 +458,7 @@ function backToSetup() {
     document.getElementById('screen-setup').classList.remove('hidden');
 }
 
-// --- LOGIQUE JEU ---
+// --- GAME LOGIC ---
 function setupGame() {
     const t = translations[currentLang];
     const nbUnder = settings.undercover;
@@ -496,7 +496,7 @@ function setupGame() {
     while (roles.length < currentPlayers.length) roles.push({type: 'Civil', word: civilWord});
     roles.sort(() => Math.random() - 0.5);
     
-    // Ordre de passage sans Mr White en premier
+    // Speaking order: Mr. White never goes first
     let order = currentPlayers.map((_, i) => i);
     let isValidOrder = false;
     while (!isValidOrder) {
@@ -595,7 +595,7 @@ function killPlayer(idx) {
     const t = translations[currentLang];
     const player = gameData[idx];
     player.isDead = true;
-    // CORRECTION : Pas de spoil du mot
+    // Don't spoil the word
     alert(`☠️ ${player.name} ${t.is_eliminated}\n\n${t.role} : ${player.role}`);
     renderGameList();
     checkGameEnd();

@@ -187,7 +187,7 @@
     <script src="script.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
-            // Recharge une fois quand un nouveau SW prend la main (MAJ déployée)
+            // Reload once when a new SW takes control (new version deployed)
             const hadController = !!navigator.serviceWorker.controller;
             let reloaded = false;
             navigator.serviceWorker.addEventListener('controllerchange', () => {

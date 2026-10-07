@@ -3,6 +3,6 @@ worker/node_modules/
 worker/.wrangler/
 .dev.vars
 
-# OS / éditeur
+# OS / editor
 .DS_Store
 *.log

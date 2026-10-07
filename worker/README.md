@@ -1,42 +1,53 @@
-# Proxy IA Undercover+ (Cloudflare Worker)
+# Undercover+ AI proxy (Cloudflare Worker)
 
-Garde la clé Google Gemini **côté serveur**. Le front n'appelle plus Gemini
-directement : il appelle ce Worker, qui ajoute la clé et le prompt.
+Keeps the Google Gemini key **server-side**. The front-end never calls Gemini directly: it calls this Worker, which adds the key and the prompt.
 
-## 1. Révoquer l'ancienne clé (obligatoire)
+## 1. Get a Gemini API key
 
-L'ancienne clé a été publiée sur GitHub, elle est compromise.
-Sur https://aistudio.google.com/apikey → supprime-la → crée-en une neuve.
+Create a free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
 
-## 2. Déployer le Worker
+## 2. Deploy the Worker
 
-Prérequis : un compte Cloudflare (gratuit) et Node installé.
+Requirements: a (free) Cloudflare account and Node.js.
 
 ```bash
 cd worker
 npx wrangler login
-npx wrangler secret put GEMINI_API_KEY   # colle la NOUVELLE clé quand c'est demandé
+npx wrangler secret put GEMINI_API_KEY   # paste your key when prompted
 npx wrangler deploy
 ```
 
-Wrangler affiche l'URL publique, du type :
-`https://undercover-plus.<ton-sous-domaine>.workers.dev`
+Wrangler prints the public URL, e.g. `https://undercover-plus.<your-subdomain>.workers.dev`.
 
-## 3. Brancher le front
+## 3. Wire up the front-end
 
-Dans `../script.js`, en haut, remplace la valeur de `AI_ENDPOINT` par cette URL.
+In [`../script.js`](../script.js), set `AI_ENDPOINT` (top of the file) to that URL.
 
-## 4. (Optionnel) Verrouiller le CORS
+## 4. Lock CORS (recommended)
 
-Pour que seul ton site puisse appeler le Worker, décommente `ALLOWED_ORIGIN`
-dans `wrangler.toml` (mets ton domaine GitHub Pages), puis `npx wrangler deploy`.
+So that only your site can call the Worker from a browser, uncomment `ALLOWED_ORIGIN` in [`wrangler.toml`](wrangler.toml), set it to your GitHub Pages domain, then run `npx wrangler deploy` again.
 
-## Tester
+> CORS only restricts browsers. Anyone can still call the Worker with `curl`; your Gemini free-tier quota is the real limit.
+
+## Test
 
 ```bash
-curl -X POST https://undercover-plus.<ton-sous-domaine>.workers.dev \
+curl -X POST https://undercover-plus.<your-subdomain>.workers.dev \
   -H "Content-Type: application/json" \
-  -d '{"theme":"Harry Potter","lang":"fr","count":5}'
+  -d '{"theme":"Harry Potter","lang":"en","count":5}'
 ```
 
-Réponse attendue : `{"pairs":[["Baguette","Balai"], ...]}`
+Expected response: `{"pairs":[["Wand","Broom"], ...]}`
+
+## API
+
+`POST /` with a JSON body:
+
+| Field | Type | Description |
+|---|---|---|
+| `theme` | string | Theme of the pairs (required) |
+| `lang` | `"fr"` \| `"en"` | Language of the words |
+| `count` | number | Number of pairs, 1–30 (default 15) |
+| `existing` | `[string, string][]` | Pairs already in the pack, excluded from the result |
+
+Models: `gemini-2.5-flash`, falling back to `gemini-2.5-flash-lite` on 503/429.
