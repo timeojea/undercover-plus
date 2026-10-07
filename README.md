@@ -6,7 +6,7 @@
   <p>
     A fully customizable, mobile-first web version of the famous social deduction party game.<br>
     <strong>Now powered by Google Gemini AI for infinite word generation!</strong><br>
-    Built with vanilla HTML, CSS, and JavaScript. No backend required.
+    Built with vanilla HTML, CSS, and JavaScript. No build step, no framework.
   </p>
 
   <h2>
@@ -35,7 +35,7 @@ Players must describe their word without revealing too much, then vote to elimin
 
 ## ✨ Features
 
-* **🤖 AI-Powered Generation:** Use the new **RGB Neon Interface** to generate infinite custom word pairs instantly using **Google Gemini 1.5 Flash**.
+* **🤖 AI-Powered Generation:** Use the new **RGB Neon Interface** to generate infinite custom word pairs instantly using **Google Gemini 2.5 Flash** (through a Cloudflare Worker proxy).
 * **📱 Mobile-First Design:** Optimized for smartphones with a modern Dark Mode UI and smooth animations.
 * **✏️ In-App Editor:** Create and manage your own custom word packs directly within the app (saved locally).
 * **🌍 Bilingual Support:** Instant switch between **English** and **French** interface & words.
@@ -68,13 +68,11 @@ Simply click here: **[https://timeojea.github.io/undercover-plus/](https://timeo
 ### Option 2: Run Locally (For Developers)
 1.  Clone the repository:
     ```bash
-    git clone [https://github.com/timeojea/undercover-plus.git](https://github.com/timeojea/undercover-plus.git)
+    git clone https://github.com/timeojea/undercover-plus.git
     ```
-2.  **API Configuration:** To use the AI feature, you must get a free API Key from [Google AI Studio](https://aistudio.google.com/).
-    Open `script.js` and replace the placeholder:
-    ```javascript
-    const GEMINI_API_KEY = "YOUR_API_KEY_HERE";
-    ```
+2.  **AI proxy (optional):** The Gemini key never lives in the front-end. The app calls a small Cloudflare Worker (`worker/`) that holds the key and the prompt.
+    To run your own: deploy it (see [`worker/README.md`](worker/README.md)), then set `AI_ENDPOINT` at the top of `script.js` to your Worker URL.
+    Everything else works without it.
 3.  **Serve:** Open with a local server (e.g., Live Server on VS Code) to avoid CORS issues.
 
 ## 📝 Customization
@@ -92,3 +90,11 @@ const DATABASE = {
     }
     // ...
 };
+
+## 🤝 Contributing
+
+Issues and pull requests are welcome. Keep it vanilla: no framework, no build step.
+
+## 📄 License
+
+[MIT](LICENSE) © Timéo Jeannin
