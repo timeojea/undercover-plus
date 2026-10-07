@@ -90,6 +90,7 @@ const DATABASE = {
     }
     // ...
 };
+```
 
 ## 🤝 Contributing
 
