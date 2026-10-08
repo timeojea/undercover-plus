@@ -7,4 +7,4 @@ compatibility_date = "2024-11-01"
 #
 # Optional: lock CORS to your domain (otherwise "*")
 # [vars]
-# ALLOWED_ORIGIN = "https://timeojea.github.io"
+# ALLOWED_ORIGIN = "https://trk78.github.io"

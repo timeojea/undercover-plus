@@ -5,9 +5,9 @@
 **The *Undercover* party game on a single phone, with AI-generated word pairs on any theme.**
 Free · No sign-up · No ads · Works offline · English & French
 
-### [▶ Play: timeojea.github.io/undercover-plus](https://timeojea.github.io/undercover-plus/)
+### [▶ Play: trk78.github.io/undercover-plus](https://trk78.github.io/undercover-plus/)
 
-[![Deploy](https://github.com/timeojea/undercover-plus/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/timeojea/undercover-plus/actions/workflows/pages/pages-build-deployment)
+[![Deploy](https://github.com/trk78/undercover-plus/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/trk78/undercover-plus/actions/workflows/pages/pages-build-deployment)
 [![License: MIT](https://img.shields.io/badge/license-MIT-ff2d6f.svg)](LICENSE)
 ![JavaScript](https://img.shields.io/badge/vanilla_JavaScript-F7DF1E?logo=javascript&logoColor=black)
 ![PWA](https://img.shields.io/badge/PWA-5A0FC8?logo=pwa&logoColor=white)
@@ -76,7 +76,7 @@ sequenceDiagram
 No dependencies. All you need is a static file server (the service worker doesn't run on `file://`):
 
 ```bash
-git clone https://github.com/timeojea/undercover-plus.git
+git clone https://github.com/trk78/undercover-plus.git
 cd undercover-plus
 python -m http.server 8000
 ```
@@ -134,7 +134,7 @@ const DATABASE = {
 
 ## 🤝 Contributing
 
-Issues and pull requests are welcome: [open an issue](https://github.com/timeojea/undercover-plus/issues). Keep the project's spirit: vanilla, no framework, no build step.
+Issues and pull requests are welcome: [open an issue](https://github.com/trk78/undercover-plus/issues). Keep the project's spirit: vanilla, no framework, no build step.
 
 Open ideas:
 - preview AI pairs before adding them;

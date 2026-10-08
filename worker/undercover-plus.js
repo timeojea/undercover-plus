@@ -5,7 +5,7 @@
 //
 // Config (Cloudflare > Settings > Variables):
 //   - GEMINI_API_KEY: secret (your Google AI Studio key)  -> "Encrypt"
-//   - ALLOWED_ORIGIN: optional, e.g. "https://timeojea.github.io" (locks CORS)
+//   - ALLOWED_ORIGIN: optional, e.g. "https://trk78.github.io" (locks CORS)
 //
 // Deployment: see worker/README.md
 
@@ -196,7 +196,7 @@ function key(a, b) {
 }
 
 function corsHeaders(env, origin) {
-  const allowed = env.ALLOWED_ORIGIN; // ex "https://timeojea.github.io"
+  const allowed = env.ALLOWED_ORIGIN; // ex "https://trk78.github.io"
   const allowOrigin = !allowed ? "*" : origin === allowed ? origin : allowed;
   return {
     "Access-Control-Allow-Origin": allowOrigin,
